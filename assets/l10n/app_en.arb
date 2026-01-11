@@ -1,0 +1,87 @@
+{
+  "@@locale": "en",
+  "appTitle": "Sake Exam L1",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "homeTitle": "Sake Exam L1: Study & Quiz",
+  "@homeTitle": {
+    "description": "Title shown on the home screen"
+  },
+  "homeSubtitle": "Master Sake knowledge in your spare time!",
+  "@homeSubtitle": {
+    "description": "Subtitle shown on the home screen"
+  },
+  "part1Title": "Ingredients & Basics",
+  "@part1Title": {
+    "description": "Title for Part 1"
+  },
+  "part2Title": "Categories & Grades",
+  "@part2Title": {
+    "description": "Title for Part 2"
+  },
+  "part3Title": "Service & Storage",
+  "@part3Title": {
+    "description": "Title for Part 3"
+  },
+  "reviewWeakness": "Review Weakness",
+  "@reviewWeakness": {
+    "description": "Button text to review incorrect answers"
+  },
+  "correct": "Correct! ⭕",
+  "@correct": {
+    "description": "Message shown when the answer is correct"
+  },
+  "incorrect": "Incorrect... ❌",
+  "@incorrect": {
+    "description": "Message shown when the answer is incorrect"
+  },
+  "questionLabel": "Question",
+  "@questionLabel": {
+    "description": "Label for the question number"
+  },
+  "resultTitle": "Result",
+  "@resultTitle": {
+    "description": "Title for the result screen"
+  },
+  "backToHome": "Back to Home",
+  "@backToHome": {
+    "description": "Button text to go back to home"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading text"
+  },
+  "noData": "No data available",
+  "@noData": {
+    "description": "Message shown when no data is found"
+  },
+  "perfectMessage": "PERFECT! 🎉",
+  "@perfectMessage": {
+    "description": "Message shown when score is perfect"
+  },
+  "passMessage": "Great job! You passed!",
+  "@passMessage": {
+    "description": "Message shown when score is passing"
+  },
+  "failMessage": "Almost! Let's review.",
+  "@failMessage": {
+    "description": "Message shown when score is failing"
+  },
+  "imageQuestion": "Image Question",
+  "@imageQuestion": {
+    "description": "Label for image questions"
+  },
+  "reviewMistakes": "Review Mistakes",
+  "@reviewMistakes": {
+    "description": "Button to review mistakes"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button to retry the quiz"
+  },
+  "scoreLabel": "Score",
+  "@scoreLabel": {
+    "description": "Label for the score"
+  }
+}
