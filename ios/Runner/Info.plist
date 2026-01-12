@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>Sake Exam L1</string>
 	<key>LSHasLocalizedDisplayName</key>
 	<true/>
 	<key>CFBundleExecutable</key>
@@ -48,7 +48,7 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3331079517737737~2429036337</string>
+	<string>ca-app-pub-3331079517737737~7731418187</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>To deliver personalized ads, please select "Allow" on the next screen.</string>
 </dict>

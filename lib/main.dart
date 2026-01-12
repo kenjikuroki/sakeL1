@@ -12,6 +12,8 @@ import 'utils/ad_manager.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
+import 'pages/settings_page.dart';
+import 'utils/purchase_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +66,17 @@ class Quiz {
 class PrefsHelper {
   static const String _keyWeakQuestions = 'weak_questions';
   static const String _keyAdCounter = 'ad_counter';
+  static const String _keyIsPremium = 'is_premium';
+
+  static Future<bool> isPremium() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyIsPremium) ?? false;
+  }
+
+  static Future<void> setPremium(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyIsPremium, value);
+  }
 
   static Future<bool> shouldShowInterstitial() async {
     final prefs = await SharedPreferences.getInstance();
@@ -216,6 +229,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _weaknessCount = 0;
   bool _isLoading = true;
+  bool _isPremium = false;
 
   @override
   void initState() {
@@ -234,8 +248,15 @@ class _HomePageState extends State<HomePage> {
     // 3. Initialize Ads
     await MobileAds.instance.initialize();
     
-    // 4. Preload Ads
-    AdManager.instance.preloadAd('home');
+
+    if (!await PrefsHelper.isPremium()) {
+      AdManager.instance.preloadAd('home');
+    }
+
+    // 5. Init Purchase Manager
+    await PurchaseManager.instance.initialize();
+    PurchaseManager.instance.isPremiumNotifier.addListener(_onPremiumChanged);
+    _onPremiumChanged(); // initial check
 
     if (context.mounted) {
       await QuizData.load(context);
@@ -247,6 +268,22 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
+  void _onPremiumChanged() {
+    final val = PurchaseManager.instance.isPremiumNotifier.value;
+    if (mounted) {
+      setState(() {
+        _isPremium = val;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    PurchaseManager.instance.isPremiumNotifier.removeListener(_onPremiumChanged);
+    super.dispose();
+  }
+
   
   Future<void> _loadUserData() async {
     final weakList = await PrefsHelper.getWeakQuestions();
@@ -269,8 +306,10 @@ class _HomePageState extends State<HomePage> {
       questionsToUse.shuffle();
     }
     
-    AdManager.instance.preloadAd('result');
-    AdManager.instance.preloadInterstitial();
+    if (!_isPremium) {
+      AdManager.instance.preloadAd('result');
+      AdManager.instance.preloadInterstitial();
+    }
     
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -293,8 +332,10 @@ class _HomePageState extends State<HomePage> {
 
     final weakQuizzes = QuizData.getQuizzesFromTexts(weakTexts);
     
-    AdManager.instance.preloadAd('result');
-    AdManager.instance.preloadInterstitial();
+    if (!_isPremium) {
+      AdManager.instance.preloadAd('result');
+      AdManager.instance.preloadInterstitial();
+    }
 
     await navigator.push(
       MaterialPageRoute(
@@ -343,6 +384,16 @@ class _HomePageState extends State<HomePage> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+               Navigator.of(context).push(
+                 MaterialPageRoute(builder: (_) => const SettingsPage()),
+               );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -366,7 +417,7 @@ class _HomePageState extends State<HomePage> {
                   // Part 1
                   _MenuButton(
                     title: AppLocalizations.of(context)!.part1Title,
-                    icon: Icons.waves,
+                    icon: Icons.water_drop, // Changed from waves
                     iconColor: Colors.blueAccent,
                     onTap: () => _startQuizByCategory(context, 'part1'),
                   ),
@@ -375,18 +426,33 @@ class _HomePageState extends State<HomePage> {
                   // Part 2
                   _MenuButton(
                     title: AppLocalizations.of(context)!.part2Title,
-                    icon: Icons.local_bar, // Changed icon for Categories/Grades
+                    icon: Icons.workspace_premium, // Changed from local_bar (martini)
                     iconColor: Colors.orange,
-                    onTap: () => _startQuizByCategory(context, 'part2'),
+                    onTap: () {
+                      if (_isPremium) {
+                        _startQuizByCategory(context, 'part2');
+                      } else {
+                        // Show lock or prompt
+                        _showPremiumLock(context);
+                      }
+                    },
+                    isLocked: !_isPremium,
                   ),
                   const SizedBox(height: 16),
 
                   // Part 3
                   _MenuButton(
                     title: AppLocalizations.of(context)!.part3Title,
-                    icon: Icons.thermostat, // Changed icon for Service/Storage
+                    icon: Icons.room_service, // Changed from thermostat
                     iconColor: Colors.redAccent,
-                    onTap: () => _startQuizByCategory(context, 'part3'),
+                    onTap: () {
+                      if (_isPremium) {
+                         _startQuizByCategory(context, 'part3');
+                      } else {
+                        _showPremiumLock(context);
+                      }
+                    },
+                    isLocked: !_isPremium,
                   ),
                   const SizedBox(height: 16),
                   
@@ -428,19 +494,47 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  void _showPremiumLock(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(AppLocalizations.of(context)!.locked),
+          content: Text(AppLocalizations.of(context)!.premiumDesc),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("OK"),
+            ),
+             TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsPage()),
+                );
+              },
+              child: Text(AppLocalizations.of(context)!.settingsTitle),
+            ),
+          ],
+        ),
+      );
+  }
 }
+
 
 class _MenuButton extends StatelessWidget {
   final String title;
   final IconData icon;
   final Color iconColor;
   final VoidCallback onTap;
+  final bool isLocked;
 
   const _MenuButton({
     required this.title,
     required this.icon,
     required this.iconColor,
     required this.onTap,
+    this.isLocked = false,
   });
 
   @override
@@ -490,7 +584,10 @@ class _MenuButton extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: Colors.grey[400]),
+                Icon(
+                  isLocked ? Icons.lock : Icons.chevron_right, 
+                  color: isLocked ? Colors.grey : Colors.grey[400]
+                ),
               ],
             ),
           ),

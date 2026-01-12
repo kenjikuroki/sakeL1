@@ -143,13 +143,13 @@ abstract class AppLocalizations {
   /// Message shown when the answer is correct
   ///
   /// In en, this message translates to:
-  /// **'Correct! ⭕'**
+  /// **'Correct!'**
   String get correct;
 
   /// Message shown when the answer is incorrect
   ///
   /// In en, this message translates to:
-  /// **'Incorrect... ❌'**
+  /// **'Incorrect...'**
   String get incorrect;
 
   /// Label for the question number
@@ -223,6 +223,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Score'**
   String get scoreLabel;
+
+  /// Title for settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Button to restore purchases
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Purchases'**
+  String get restorePurchases;
+
+  /// Button to open privacy policy
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// Button to contact support
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get contactUs;
+
+  /// Label for app version
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get appVersion;
+
+  /// Title for premium unlock
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Premium'**
+  String get premiumUnlock;
+
+  /// Description for premium unlock
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock all parts & remove ads'**
+  String get premiumDesc;
+
+  /// Message for successful purchase
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase successful!'**
+  String get purchaseSuccess;
+
+  /// Message for successful restore
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases restored!'**
+  String get restoreSuccess;
+
+  /// Message for failed restore
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to restore.'**
+  String get restoreFail;
+
+  /// Label for locked content
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get locked;
+
+  /// Label for buy button
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get buy;
 }
 
 class _AppLocalizationsDelegate

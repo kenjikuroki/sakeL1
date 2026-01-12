@@ -28,11 +28,11 @@
   "@reviewWeakness": {
     "description": "Button text to review incorrect answers"
   },
-  "correct": "Correct! ⭕",
+  "correct": "Correct!",
   "@correct": {
     "description": "Message shown when the answer is correct"
   },
-  "incorrect": "Incorrect... ❌",
+  "incorrect": "Incorrect...",
   "@incorrect": {
     "description": "Message shown when the answer is incorrect"
   },
@@ -83,5 +83,53 @@
   "scoreLabel": "Score",
   "@scoreLabel": {
     "description": "Label for the score"
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title for settings page"
+  },
+  "restorePurchases": "Restore Purchases",
+  "@restorePurchases": {
+    "description": "Button to restore purchases"
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Button to open privacy policy"
+  },
+  "contactUs": "Contact Us",
+  "@contactUs": {
+    "description": "Button to contact support"
+  },
+  "appVersion": "Version",
+  "@appVersion": {
+    "description": "Label for app version"
+  },
+  "premiumUnlock": "Unlock Premium",
+  "@premiumUnlock": {
+    "description": "Title for premium unlock"
+  },
+  "premiumDesc": "Unlock all parts & remove ads",
+  "@premiumDesc": {
+    "description": "Description for premium unlock"
+  },
+  "purchaseSuccess": "Purchase successful!",
+  "@purchaseSuccess": {
+    "description": "Message for successful purchase"
+  },
+  "restoreSuccess": "Purchases restored!",
+  "@restoreSuccess": {
+    "description": "Message for successful restore"
+  },
+  "restoreFail": "Nothing to restore.",
+  "@restoreFail": {
+    "description": "Message for failed restore"
+  },
+  "locked": "Locked",
+  "@locked": {
+    "description": "Label for locked content"
+  },
+  "buy": "Buy",
+  "@buy": {
+    "description": "Label for buy button"
   }
 }

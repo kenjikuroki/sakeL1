@@ -30,10 +30,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewWeakness => 'Review Weakness';
 
   @override
-  String get correct => 'Correct! ⭕';
+  String get correct => 'Correct!';
 
   @override
-  String get incorrect => 'Incorrect... ❌';
+  String get incorrect => 'Incorrect...';
 
   @override
   String get questionLabel => 'Question';
@@ -70,4 +70,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scoreLabel => 'Score';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get restorePurchases => 'Restore Purchases';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get appVersion => 'Version';
+
+  @override
+  String get premiumUnlock => 'Unlock Premium';
+
+  @override
+  String get premiumDesc => 'Unlock all parts & remove ads';
+
+  @override
+  String get purchaseSuccess => 'Purchase successful!';
+
+  @override
+  String get restoreSuccess => 'Purchases restored!';
+
+  @override
+  String get restoreFail => 'Nothing to restore.';
+
+  @override
+  String get locked => 'Locked';
+
+  @override
+  String get buy => 'Buy';
 }

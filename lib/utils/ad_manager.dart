@@ -19,7 +19,7 @@ class AdManager {
 
   final Map<String, PreloadedAd> _ads = {};
 
-  final String _adUnitId = 'ca-app-pub-3331079517737737/6126923989';
+  final String _adUnitId = 'ca-app-pub-3331079517737737/7292434480';
   
   // Test ID for debug (optional use)
   // final String _testAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
@@ -74,7 +74,7 @@ class AdManager {
   InterstitialAd? _interstitialAd;
   
   // Real ID from user screenshot
-  final String _interstitialAdUnitId = 'ca-app-pub-3331079517737737/3866241086';
+  final String _interstitialAdUnitId = 'ca-app-pub-3331079517737737/5979352813';
 
   void preloadInterstitial() {
     // If already loaded or loading, skip? 
