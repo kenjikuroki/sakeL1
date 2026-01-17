@@ -12,7 +12,7 @@ class PurchaseManager {
   late StreamSubscription<List<PurchaseDetails>> _subscription;
   
   // Product ID for premium unlock
-  static const String productIdPremium = 'sake_l1_premium_content'; 
+  static const String productIdPremium = 'sake_l1_premium_content_2'; 
   // TODO: Replace with actual product ID dynamically if needed or keep static
 
   final ValueNotifier<bool> isPremiumNotifier = ValueNotifier(false);

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -201,11 +203,16 @@ class MyApp extends StatelessWidget {
       ],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF2C3E50), // Chic Dark
+          primary: const Color(0xFF2C3E50),
+          secondary: const Color(0xFFBFA05D), // Muted Gold accent
+        ),
         useMaterial3: true,
-        scaffoldBackgroundColor: Colors.lightBlue[50],
+        scaffoldBackgroundColor: const Color(0xFFF0F2F5), // Soft Grey
+        textTheme: GoogleFonts.loraTextTheme(), // Use Lora font
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Color(0xFF2C3E50), // Chic Dark Blue-Grey
           foregroundColor: Colors.white,
           elevation: 0,
         ),
@@ -213,6 +220,7 @@ class MyApp extends StatelessWidget {
       home: const HomePage(),
     );
   }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -628,7 +636,7 @@ class _QuizPageState extends State<QuizPage> {
   final List<Quiz> _incorrectQuizzes = [];
   final List<Quiz> _correctQuizzesInReview = [];
   final List<Map<String, dynamic>> _answerHistory = [];
-  Color _backgroundColor = Colors.lightBlue[50]!;
+  Color _backgroundColor = const Color(0xFFF0F2F5);
 
   void _handleSwipeEnd(int previousIndex, int targetIndex, SwiperActivity activity) {
     if (activity is Swipe) {
@@ -660,7 +668,7 @@ class _QuizPageState extends State<QuizPage> {
       Future.delayed(const Duration(milliseconds: 200), () {
         if (mounted) {
           setState(() {
-            _backgroundColor = Colors.lightBlue[50]!;
+            _backgroundColor = const Color(0xFFF0F2F5);
           });
         }
       });
@@ -994,7 +1002,7 @@ class ResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: const Color(0xFFF0F2F5),
       body: SafeArea( // 1. SafeArea内
         child: Column(
           children: [
@@ -1137,7 +1145,7 @@ class ResultPage extends StatelessWidget {
             // -----------------------------------------------------------------
             Container(
               padding: const EdgeInsets.all(16),
-              color: const Color(0xFFF9F9F9),
+              color: const Color(0xFFF0F2F5),
               child: Column(
                 children: [
                   Row(
