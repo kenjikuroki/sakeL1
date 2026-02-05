@@ -32,5 +32,13 @@
   "restoreSuccess": "¡Compras restauradas!",
   "restoreFail": "Nada para restaurar.",
   "locked": "Bloqueado",
-  "buy": "Comprar"
+  "buy": "Comprar",
+  "removeAds": "Quitar Anuncios",
+  "removeAdsDesc": "Elimina todos los anuncios de la aplicación",
+  "sisterAppSubtitle": "¡Desafía otro nivel!",
+  "sisterAppTitle": "Profundiza tus conocimientos con\nnuestra app hermana 'Sake Exam L2'",
+  "sisterAppPopupTitle": "App Hermana\n'Sake Exam L2'",
+  "sisterAppPopupBody": "Abriendo la App Store para visitar\nla página de la app hermana.",
+  "cancel": "Cancelar",
+  "open": "Abrir"
 }

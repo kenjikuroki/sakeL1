@@ -8,11 +8,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'widgets/ad_banner.dart';
 import 'utils/ad_manager.dart';
 
 
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'l10n/app_localizations.dart';
 import 'pages/settings_page.dart';
 import 'utils/purchase_manager.dart';
@@ -316,6 +318,7 @@ class _HomePageState extends State<HomePage> {
     
     if (!_isPremium) {
       AdManager.instance.preloadAd('result');
+      AdManager.instance.preloadAd('quiz');
       AdManager.instance.preloadInterstitial();
     }
     
@@ -342,6 +345,7 @@ class _HomePageState extends State<HomePage> {
     
     if (!_isPremium) {
       AdManager.instance.preloadAd('result');
+      AdManager.instance.preloadAd('quiz');
       AdManager.instance.preloadInterstitial();
     }
 
@@ -436,15 +440,7 @@ class _HomePageState extends State<HomePage> {
                     title: AppLocalizations.of(context)!.part2Title,
                     icon: Icons.workspace_premium, // Changed from local_bar (martini)
                     iconColor: Colors.orange,
-                    onTap: () {
-                      if (_isPremium) {
-                        _startQuizByCategory(context, 'part2');
-                      } else {
-                        // Show lock or prompt
-                        _showPremiumLock(context);
-                      }
-                    },
-                    isLocked: !_isPremium,
+                    onTap: () => _startQuizByCategory(context, 'part2'),
                   ),
                   const SizedBox(height: 16),
 
@@ -453,14 +449,7 @@ class _HomePageState extends State<HomePage> {
                     title: AppLocalizations.of(context)!.part3Title,
                     icon: Icons.room_service, // Changed from thermostat
                     iconColor: Colors.redAccent,
-                    onTap: () {
-                      if (_isPremium) {
-                         _startQuizByCategory(context, 'part3');
-                      } else {
-                        _showPremiumLock(context);
-                      }
-                    },
-                    isLocked: !_isPremium,
+                    onTap: () => _startQuizByCategory(context, 'part3'),
                   ),
                   const SizedBox(height: 16),
                   
@@ -484,48 +473,18 @@ class _HomePageState extends State<HomePage> {
                       textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
+                  // Sister App Promotion
+                  const _SisterAppPromo(),
                   const SizedBox(height: 40),
                 ],
               ),
             ),
           ),
           
-          // Ad Banner
-          const SafeArea(
-            top: false,
-            child: SizedBox(
-              height: 60,
-              child: AdBanner(adKey: 'home', keepAlive: true),
-            ),
-          ),
+          // Ad Banner REMOVED FROM HERE
         ],
       ),
     );
-  }
-
-  void _showPremiumLock(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(AppLocalizations.of(context)!.locked),
-          content: Text(AppLocalizations.of(context)!.premiumDesc),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("OK"),
-            ),
-             TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsPage()),
-                );
-              },
-              child: Text(AppLocalizations.of(context)!.settingsTitle),
-            ),
-          ],
-        ),
-      );
   }
 }
 
@@ -862,6 +821,15 @@ class _QuizPageState extends State<QuizPage> {
                   ],
                 ),
               ),
+              // Ad Banner added here
+              if (!PurchaseManager.instance.isPremiumNotifier.value)
+                const SafeArea(
+                  top: false,
+                  child: SizedBox(
+                    height: 60,
+                    child: AdBanner(adKey: 'quiz'),
+                  ),
+                ),
             ],
           ),
         ),
@@ -886,8 +854,9 @@ class _QuizPageState extends State<QuizPage> {
           ),
         ],
       ),
-      alignment: Alignment.center,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start, // 上詰め
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hasImage) 
             Expanded(
@@ -912,53 +881,44 @@ class _QuizPageState extends State<QuizPage> {
               ),
             )
           else 
-            const Spacer(flex: 2),
+            const SizedBox(height: 40),
 
           Expanded(
-            flex: 5,
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: SizedBox(
-                      width: constraints.maxWidth,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                           if (!hasImage)
-                            const Text(
-                              "Q.",
-                              style: TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey,
-                              ),
-                            ),
-                          if (!hasImage) const SizedBox(height: 20),
-
-                          Text(
-                            quiz.question,
-                            style: TextStyle(
-                              fontSize: hasImage ? 20 : 24,
-                              fontWeight: FontWeight.bold,
-                              height: 1.3,
-                              color: Colors.black87,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                   const Text(
+                    "Q.",
+                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                    textAlign: TextAlign.center, // ここは中央配置
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  Expanded(
+                    child: AutoSizeText(
+                      quiz.question,
+                      style: TextStyle(
+                        fontSize: hasImage ? 24 : 32, // 基本サイズ
+                        fontWeight: FontWeight.bold,
+                        height: 1.3,
+                        color: Colors.black87,
                       ),
+                      textAlign: TextAlign.left, // 左寄せ
+                      minFontSize: 12,
+                      stepGranularity: 1,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 20, // 複数行表示を保証
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
           ),
           
-           const Padding(
+          const Padding(
             padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1232,6 +1192,169 @@ class ResultPage extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SisterAppPromo extends StatelessWidget {
+  const _SisterAppPromo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showConfirmationDialog(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    'assets/sister_app_icon.jpg',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.sisterAppSubtitle,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        AppLocalizations.of(context)!.sisterAppTitle,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          height: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.launch, color: Colors.grey, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Image.asset('assets/sister_app_icon.jpg', fit: BoxFit.cover),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                AppLocalizations.of(context)!.sisterAppPopupTitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                AppLocalizations.of(context)!.sisterAppPopupBody,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        final url = Uri.parse('https://apps.apple.com/app/id6757795299');
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.open,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

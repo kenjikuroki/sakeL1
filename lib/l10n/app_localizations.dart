@@ -290,11 +290,59 @@ abstract class AppLocalizations {
   /// **'Locked'**
   String get locked;
 
-  /// Label for buy button
+  /// No description provided for @buy.
   ///
   /// In en, this message translates to:
   /// **'Buy'**
   String get buy;
+
+  /// No description provided for @removeAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Ads'**
+  String get removeAds;
+
+  /// No description provided for @removeAdsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all advertisements from the app'**
+  String get removeAdsDesc;
+
+  /// No description provided for @sisterAppSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge another level!'**
+  String get sisterAppSubtitle;
+
+  /// No description provided for @sisterAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deepen your knowledge with\nour sister app \'Sake Exam L2\''**
+  String get sisterAppTitle;
+
+  /// No description provided for @sisterAppPopupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sister App\n\'Sake Exam L2\''**
+  String get sisterAppPopupTitle;
+
+  /// No description provided for @sisterAppPopupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening the App Store to visit\nthe sister app page.'**
+  String get sisterAppPopupBody;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
 }
 
 class _AppLocalizationsDelegate

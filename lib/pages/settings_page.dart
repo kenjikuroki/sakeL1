@@ -69,141 +69,163 @@ class _SettingsPageState extends State<SettingsPage> {
     await PurchaseManager.instance.debugUnlock();
   }
 
+  Future<void> _restorePurchases() async {
+    try {
+      await PurchaseManager.instance.restorePurchases();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.restoreSuccess)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.restoreFail)),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.settingsTitle),
+        title: Text(
+          l10n.settingsTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: ListView(
         children: [
-          // Premium Section
           ValueListenableBuilder<bool>(
             valueListenable: PurchaseManager.instance.isPremiumNotifier,
             builder: (context, isPremium, child) {
-              if (isPremium) {
-                return const SizedBox.shrink(); // Hide if already premium
-              }
-              return Card(
-                margin: const EdgeInsets.all(16),
-                color: Colors.amber[50],
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        l10n.premiumUnlock,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.amber),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(l10n.premiumDesc),
-                      const SizedBox(height: 16),
-                      _isLoadingProducts
-                          ? const CircularProgressIndicator()
-                          : Column(
-                              children: [
-                                if (_products.isNotEmpty)
-                                  Container(
-                                    width: double.infinity,
-                                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                    height: 56,
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [Color(0xFFFFA000), Color(0xFFFFC107)],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(28),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.orange.withValues(alpha: 0.4),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        onTap: _buyPremium,
-                                        borderRadius: BorderRadius.circular(28),
-                                        child: Center(
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Icon(Icons.workspace_premium, color: Colors.white, size: 30),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                "${l10n.buy} ${_products.first.price}",
-                                                style: TextStyle(
-                                                  fontSize: 22,
-                                                  fontWeight: FontWeight.w900,
-                                                  color: Colors.white,
-                                                  letterSpacing: 1.0,
-                                                  shadows: [
-                                                    Shadow(
-                                                      color: Colors.black.withValues(alpha: 0.2),
-                                                      offset: const Offset(0, 2),
-                                                      blurRadius: 2,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                else ...[
-                                  Text(l10n.noData, style: const TextStyle(color: Colors.red)), // Using noData as placeholder
-                                  const SizedBox(height: 8),
-                                  // Debug/Fallback Button
-                                  if (kDebugMode)
-                                    OutlinedButton(
-                                      onPressed: _debugUnlock,
-                                      child: const Text("Debug Unlock (Free)"),
-                                    ),
-                                ]
-                              ],
-                            ),
-                    ],
-                  ),
-                ),
-              );
+              if (isPremium) return const SizedBox.shrink();
+              return _buildPremiumCard(l10n);
             },
           ),
 
-          const Divider(),
+          const Divider(height: 1),
 
-          // Actions
           ListTile(
             leading: const Icon(Icons.restore),
-            title: Text(l10n.restorePurchases),
-            onTap: () async {
-              await PurchaseManager.instance.restorePurchases();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                   SnackBar(content: Text(l10n.restoreSuccess)),
-                );
-              }
-            },
+            title: Text(
+              l10n.restorePurchases,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            onTap: _restorePurchases,
           ),
+
+          const Divider(height: 1),
+
           ListTile(
             leading: const Icon(Icons.privacy_tip),
-            title: Text(l10n.privacyPolicy),
+            title: Text(
+              l10n.privacyPolicy,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
             onTap: _launchPrivacyPolicy,
           ),
           
-          const Divider(),
+          const Divider(height: 1),
           
           // Info
           ListTile(
             leading: const Icon(Icons.info),
-            title: Text(l10n.appVersion),
+            title: Text(
+              l10n.appVersion,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
             trailing: Text(_version),
+          ),
+          
+
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumCard(AppLocalizations l10n) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            l10n.removeAds,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFFFB300), // Vibrant Amber/Yellow
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.removeAdsDesc,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black.withOpacity(0.6),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 30),
+          Container(
+            width: double.infinity,
+            height: 64,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFB300).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: _buyPremium,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFB300), // Vibrant Amber/Yellow
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                elevation: 0,
+              ),
+              child: _isLoadingProducts 
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                  )
+                : Text(
+                    l10n.buy,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            ),
           ),
         ],
       ),

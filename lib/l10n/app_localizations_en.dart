@@ -106,4 +106,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get buy => 'Buy';
+
+  @override
+  String get removeAds => 'Remove Ads';
+
+  @override
+  String get removeAdsDesc => 'Remove all advertisements from the app';
+
+  @override
+  String get sisterAppSubtitle => 'Challenge another level!';
+
+  @override
+  String get sisterAppTitle =>
+      'Deepen your knowledge with\nour sister app \'Sake Exam L2\'';
+
+  @override
+  String get sisterAppPopupTitle => 'Sister App\n\'Sake Exam L2\'';
+
+  @override
+  String get sisterAppPopupBody =>
+      'Opening the App Store to visit\nthe sister app page.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get open => 'Open';
 }

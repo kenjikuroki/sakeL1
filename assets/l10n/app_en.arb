@@ -129,7 +129,12 @@
     "description": "Label for locked content"
   },
   "buy": "Buy",
-  "@buy": {
-    "description": "Label for buy button"
-  }
+  "removeAds": "Remove Ads",
+  "removeAdsDesc": "Remove all advertisements from the app",
+  "sisterAppSubtitle": "Challenge another level!",
+  "sisterAppTitle": "Deepen your knowledge with\nour sister app 'Sake Exam L2'",
+  "sisterAppPopupTitle": "Sister App\n'Sake Exam L2'",
+  "sisterAppPopupBody": "Opening the App Store to visit\nthe sister app page.",
+  "cancel": "Cancel",
+  "open": "Open"
 }
