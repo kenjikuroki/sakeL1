@@ -28,6 +28,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get part3Title => 'Servicio y Almacenamiento';
 
   @override
+  String get part4Title => 'Servicio y Maridaje';
+
+  @override
   String get reviewWeakness => 'Repasar Debilidades';
 
   @override
@@ -109,10 +112,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get buy => 'Comprar';
 
   @override
-  String get removeAds => 'Quitar Anuncios';
+  String get removeAds => 'Actualización Premium';
 
   @override
-  String get removeAdsDesc => 'Elimina todos los anuncios de la aplicación';
+  String get removeAdsDesc =>
+      'Elimina anuncios y desbloquea todas las funciones';
 
   @override
   String get sisterAppSubtitle => '¡Desafía otro nivel!';
@@ -133,4 +137,26 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get open => 'Abrir';
+
+  @override
+  String get shuffle => 'Aleatorio';
+
+  @override
+  String get sequential => 'Secuencial';
+
+  @override
+  String get allCategories => 'Todas las categorías';
+
+  @override
+  String get selectCategory => 'Seleccionar categoría';
+
+  @override
+  String get premiumFeature1 => 'Eliminar completamente todos los anuncios';
+
+  @override
+  String get premiumFeature2 =>
+      'Desbloquear modo \'Secuencial\' (todo en orden)';
+
+  @override
+  String get premiumFeature3 => 'Repaso avanzado por categoría específica';
 }

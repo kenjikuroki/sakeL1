@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
+import 'app_localizations_ja.dart';
 
 // ignore_for_file: type=lint
 
@@ -96,6 +97,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('es'),
+    Locale('ja'),
   ];
 
   /// The title of the application
@@ -133,6 +135,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Service & Storage'**
   String get part3Title;
+
+  /// Title for Part 4
+  ///
+  /// In en, this message translates to:
+  /// **'Service & Pairing'**
+  String get part4Title;
 
   /// Button text to review incorrect answers
   ///
@@ -299,13 +307,13 @@ abstract class AppLocalizations {
   /// No description provided for @removeAds.
   ///
   /// In en, this message translates to:
-  /// **'Remove Ads'**
+  /// **'Premium Upgrade'**
   String get removeAds;
 
   /// No description provided for @removeAdsDesc.
   ///
   /// In en, this message translates to:
-  /// **'Remove all advertisements from the app'**
+  /// **'Remove all ads and unlock all premium features'**
   String get removeAdsDesc;
 
   /// No description provided for @sisterAppSubtitle.
@@ -343,6 +351,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get open;
+
+  /// No description provided for @shuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle'**
+  String get shuffle;
+
+  /// No description provided for @sequential.
+  ///
+  /// In en, this message translates to:
+  /// **'Sequential'**
+  String get sequential;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All Categories'**
+  String get allCategories;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Category'**
+  String get selectCategory;
+
+  /// No description provided for @premiumFeature1.
+  ///
+  /// In en, this message translates to:
+  /// **'Completely remove all advertisements'**
+  String get premiumFeature1;
+
+  /// No description provided for @premiumFeature2.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock \'Sequential\' mode (solve all in order)'**
+  String get premiumFeature2;
+
+  /// No description provided for @premiumFeature3.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced review by specific category'**
+  String get premiumFeature3;
 }
 
 class _AppLocalizationsDelegate
@@ -356,7 +406,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'es'].contains(locale.languageCode);
+      <String>['en', 'es', 'ja'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -369,6 +419,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'es':
       return AppLocalizationsEs();
+    case 'ja':
+      return AppLocalizationsJa();
   }
 
   throw FlutterError(

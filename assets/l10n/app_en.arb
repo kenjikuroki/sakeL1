@@ -24,6 +24,10 @@
   "@part3Title": {
     "description": "Title for Part 3"
   },
+  "part4Title": "Service & Pairing",
+  "@part4Title": {
+    "description": "Title for Part 4"
+  },
   "reviewWeakness": "Review Weakness",
   "@reviewWeakness": {
     "description": "Button text to review incorrect answers"
@@ -129,12 +133,19 @@
     "description": "Label for locked content"
   },
   "buy": "Buy",
-  "removeAds": "Remove Ads",
-  "removeAdsDesc": "Remove all advertisements from the app",
+  "removeAds": "Premium Upgrade",
+  "removeAdsDesc": "Remove all ads and unlock all premium features",
   "sisterAppSubtitle": "Challenge another level!",
   "sisterAppTitle": "Deepen your knowledge with\nour sister app 'Sake Exam L2'",
   "sisterAppPopupTitle": "Sister App\n'Sake Exam L2'",
   "sisterAppPopupBody": "Opening the App Store to visit\nthe sister app page.",
   "cancel": "Cancel",
-  "open": "Open"
+  "open": "Open",
+  "shuffle": "Shuffle",
+  "sequential": "Sequential",
+  "allCategories": "All Categories",
+  "selectCategory": "Select Category",
+  "premiumFeature1": "Completely remove all advertisements",
+  "premiumFeature2": "Unlock 'Sequential' mode (solve all in order)",
+  "premiumFeature3": "Advanced review by specific category"
 }

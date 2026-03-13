@@ -27,6 +27,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get part3Title => 'Service & Storage';
 
   @override
+  String get part4Title => 'Service & Pairing';
+
+  @override
   String get reviewWeakness => 'Review Weakness';
 
   @override
@@ -108,10 +111,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buy => 'Buy';
 
   @override
-  String get removeAds => 'Remove Ads';
+  String get removeAds => 'Premium Upgrade';
 
   @override
-  String get removeAdsDesc => 'Remove all advertisements from the app';
+  String get removeAdsDesc => 'Remove all ads and unlock all premium features';
 
   @override
   String get sisterAppSubtitle => 'Challenge another level!';
@@ -132,4 +135,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get open => 'Open';
+
+  @override
+  String get shuffle => 'Shuffle';
+
+  @override
+  String get sequential => 'Sequential';
+
+  @override
+  String get allCategories => 'All Categories';
+
+  @override
+  String get selectCategory => 'Select Category';
+
+  @override
+  String get premiumFeature1 => 'Completely remove all advertisements';
+
+  @override
+  String get premiumFeature2 =>
+      'Unlock \'Sequential\' mode (solve all in order)';
+
+  @override
+  String get premiumFeature3 => 'Advanced review by specific category';
 }

@@ -202,6 +202,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('en'),
         Locale('es'),
+        Locale('ja'),
       ],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -240,6 +241,7 @@ class _HomePageState extends State<HomePage> {
   int _weaknessCount = 0;
   bool _isLoading = true;
   bool _isPremium = false;
+  bool _isShuffleMode = true;
 
   @override
   void initState() {
@@ -313,7 +315,7 @@ class _HomePageState extends State<HomePage> {
         questionsToUse = questionsToUse.take(10).toList();
       }
     } else {
-      questionsToUse.shuffle();
+      // Sequential mode - do NOT shuffle, use all questions
     }
     
     if (!_isPremium) {
@@ -327,7 +329,7 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => QuizPage(
           quizzes: questionsToUse,
           categoryKey: categoryKey,
-          totalQuestions: isRandom10 ? 10 : questionsToUse.length,
+          totalQuestions: questionsToUse.length,
         ),
       ),
     );
@@ -336,30 +338,224 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _startWeaknessReview(BuildContext context) async {
-    final navigator = Navigator.of(context);
     final weakTexts = await PrefsHelper.getWeakQuestions();
     if (!mounted) return;
     if (weakTexts.isEmpty) return;
 
-    final weakQuizzes = QuizData.getQuizzesFromTexts(weakTexts);
-    
+    final rawWeakQuizzes = QuizData.getQuizzesFromTexts(weakTexts);
+    if (!mounted) return;
+
+    // Active category sets
+    final p1Set = QuizData.part1.map((q) => q.question).toSet();
+    final p2Set = QuizData.part2.map((q) => q.question).toSet();
+    final p3Set = QuizData.part3.map((q) => q.question).toSet();
+
+    // Filter weak quizzes to only include those in active categories
+    // This fixes the count discrepancy where hidden Part 4 questions were being counted in "All"
+    final allWeakQuizzes = rawWeakQuizzes.where((q) {
+      return p1Set.contains(q.question) || 
+             p2Set.contains(q.question) || 
+             p3Set.contains(q.question);
+    }).toList();
+
+    if (allWeakQuizzes.isEmpty) {
+       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.noData)),
+        );
+      }
+      return;
+    }
+
+    final counts = {
+      'all': allWeakQuizzes.length,
+      'part1': allWeakQuizzes.where((q) => p1Set.contains(q.question)).length,
+      'part2': allWeakQuizzes.where((q) => p2Set.contains(q.question)).length,
+      'part3': allWeakQuizzes.where((q) => p3Set.contains(q.question)).length,
+    };
+
+    final l10n = AppLocalizations.of(context)!;
+
+    // Show category selection
+    final selectedCategory = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header centered
+              Center(
+                child: Text(
+                  l10n.selectCategory,
+                  style: GoogleFonts.lora(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Categories List
+              _buildCategoryCard(
+                context, 
+                title: l10n.allCategories, 
+                count: counts['all']!, 
+                icon: Icons.all_inclusive, 
+                color: Colors.blueGrey[50]!, 
+                iconColor: Colors.blueGrey,
+                onTap: () => Navigator.pop(context, 'all'),
+              ),
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                context, 
+                title: l10n.part1Title, 
+                count: counts['part1']!, 
+                icon: Icons.water_drop, 
+                color: Colors.blue[50]!, 
+                iconColor: Colors.blueAccent,
+                onTap: () => Navigator.pop(context, 'part1'),
+              ),
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                context, 
+                title: l10n.part2Title, 
+                count: counts['part2']!, 
+                icon: Icons.biotech, 
+                color: Colors.teal[50]!, 
+                iconColor: Colors.teal,
+                onTap: () => Navigator.pop(context, 'part2'),
+              ),
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                context, 
+                title: l10n.part3Title, 
+                count: counts['part3']!, 
+                icon: Icons.label, 
+                color: Colors.purple[50]!, 
+                iconColor: Colors.purpleAccent,
+                onTap: () => Navigator.pop(context, 'part3'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selectedCategory == null) return;
+
+    List<Quiz> filteredQuizzes;
+    if (selectedCategory == 'all') {
+      filteredQuizzes = allWeakQuizzes;
+    } else {
+      Set<String> poolSet;
+      switch (selectedCategory) {
+        case 'part1': poolSet = p1Set; break;
+        case 'part2': poolSet = p2Set; break;
+        case 'part3': poolSet = p3Set; break;
+        default: poolSet = {};
+      }
+      filteredQuizzes = allWeakQuizzes.where((q) => poolSet.contains(q.question)).toList();
+    }
+
+    if (filteredQuizzes.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.noData)),
+        );
+      }
+      return;
+    }
+
     if (!_isPremium) {
       AdManager.instance.preloadAd('result');
       AdManager.instance.preloadAd('quiz');
       AdManager.instance.preloadInterstitial();
     }
 
-    await navigator.push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => QuizPage(
-          quizzes: weakQuizzes,
+          quizzes: filteredQuizzes,
           isWeaknessReview: true,
-          totalQuestions: weakQuizzes.length,
+          totalQuestions: filteredQuizzes.length,
         ),
       ),
     );
     if (!mounted) return;
     _loadUserData();
+  }
+
+  Widget _buildCategoryCard(
+    BuildContext context, {
+    required String title,
+    required int count,
+    required IconData icon,
+    required Color color,
+    required Color iconColor,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                  child: Icon(icon, color: iconColor, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "$count ${AppLocalizations.of(context)!.imageQuestion.contains('Imagen') ? 'preguntas' : AppLocalizations.of(context)!.imageQuestion.contains('画像') ? '問' : 'questions'}",
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _startQuizByCategory(BuildContext context, String partKey) {
@@ -380,7 +576,7 @@ class _HomePageState extends State<HomePage> {
        );
        return;
     }
-    _startQuiz(context, quizzes, highScoreKey);
+    _startQuiz(context, quizzes, highScoreKey, isRandom10: _isShuffleMode);
   }
 
   @override
@@ -426,6 +622,38 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // Shuffle/Sequential Toggle (Pill shape)
+                  Center(
+                    child: Container(
+                      height: 48,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Row(
+                        children: [
+                          _buildToggleButtonSection(
+                            icon: Icons.shuffle,
+                            isSelected: _isShuffleMode,
+                            onTap: () => setState(() => _isShuffleMode = true),
+                            isLeft: true,
+                          ),
+                          _buildToggleButtonSection(
+                            icon: Icons.format_list_numbered,
+                            isSelected: !_isShuffleMode,
+                            onTap: () => setState(() => _isShuffleMode = false),
+                            isLeft: false,
+                            isLocked: !_isPremium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
                   // Part 1
                   _MenuButton(
                     title: AppLocalizations.of(context)!.part1Title,
@@ -483,6 +711,177 @@ class _HomePageState extends State<HomePage> {
           
           // Ad Banner REMOVED FROM HERE
         ],
+      ),
+    );
+  }
+
+  void _showPremiumUnlockDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Rich Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFFD700), Color(0xFFFFB300), Color(0xFFFFA000)],
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.workspace_premium, size: 48, color: Colors.white),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.removeAds,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Column(
+                children: [
+                   _buildFeatureRow(Icons.format_list_numbered, l10n.premiumFeature2),
+                   const SizedBox(height: 12),
+                   _buildFeatureRow(Icons.block, l10n.premiumFeature1),
+                   const SizedBox(height: 12),
+                   _buildFeatureRow(Icons.category, l10n.premiumFeature3),
+                   
+                   const SizedBox(height: 32),
+                   
+                   // Buy Button
+                   Container(
+                     width: double.infinity,
+                     height: 56,
+                     decoration: BoxDecoration(
+                       borderRadius: BorderRadius.circular(28),
+                       boxShadow: [
+                         BoxShadow(
+                           color: const Color(0xFFFFB300).withOpacity(0.3),
+                           blurRadius: 10,
+                           offset: const Offset(0, 4),
+                         ),
+                       ],
+                     ),
+                     child: ElevatedButton(
+                       onPressed: () {
+                         Navigator.pop(context);
+                         Navigator.of(context).push(
+                           MaterialPageRoute(builder: (_) => const SettingsPage()),
+                         );
+                       },
+                       style: ElevatedButton.styleFrom(
+                         backgroundColor: const Color(0xFFFFB300),
+                         foregroundColor: Colors.white,
+                         elevation: 0,
+                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                       ),
+                       child: Text(
+                         l10n.buy,
+                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                       ),
+                     ),
+                   ),
+                   
+                   const SizedBox(height: 8),
+                   TextButton(
+                     onPressed: () => Navigator.pop(context),
+                     child: Text(
+                       l10n.cancel, 
+                       style: TextStyle(color: Colors.black.withOpacity(0.4), fontWeight: FontWeight.w500),
+                     ),
+                   ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: const Color(0xFFFFB300)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildToggleButtonSection({
+    required IconData icon, 
+    required bool isSelected, 
+    required VoidCallback onTap,
+    required bool isLeft,
+    bool isLocked = false,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: isLocked ? () => _showPremiumUnlockDialog(context) : onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF2C3E50) : Colors.transparent,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(isLeft ? 24 : 0),
+              bottomLeft: Radius.circular(isLeft ? 24 : 0),
+              topRight: Radius.circular(!isLeft ? 24 : 0),
+              bottomRight: Radius.circular(!isLeft ? 24 : 0),
+            ),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 24,
+                color: isSelected ? Colors.white : Colors.black87,
+              ),
+              if (isLocked)
+                Icon(
+                  Icons.lock,
+                  size: 32,
+                  color: isSelected ? Colors.white.withValues(alpha: 0.8) : Colors.black45,
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
